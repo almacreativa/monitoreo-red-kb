@@ -1,0 +1,120 @@
+# LibreNMS — ejemplo de stack (ver docs/01-despliegue-docker.md)
+# Secretos SOLO en .env (chmod 600): MYSQL_DATABASE, MYSQL_USER, MYSQL_PASSWORD, LIBRENMS_SNMP_COMMUNITY, TZ.
+# Reemplazar: <IP_GESTION> (dónde se publica la UI) y <IP_LAN> (dónde llegan syslog y traps).
+name: librenms
+
+x-librenms-env: &librenms_env
+  TZ: ${TZ}
+  PUID: "1000"
+  PGID: "1000"
+  DB_HOST: db
+  DB_NAME: ${MYSQL_DATABASE}
+  DB_USER: ${MYSQL_USER}
+  DB_PASSWORD: ${MYSQL_PASSWORD}
+  DB_TIMEOUT: "60"
+  LIBRENMS_SNMP_COMMUNITY: ${LIBRENMS_SNMP_COMMUNITY}
+
+services:
+  db:
+    image: mariadb:10.11.19
+    container_name: librenms_db
+    command:
+      - "mysqld"
+      - "--innodb-file-per-table=1"
+      - "--lower-case-table-names=0"
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+    volumes:
+      - ./data/db:/var/lib/mysql
+    environment:
+      TZ: ${TZ}
+      MARIADB_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    mem_limit: 1g
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.4.7-alpine
+    container_name: librenms_redis
+    environment:
+      TZ: ${TZ}
+    mem_limit: 128m
+    restart: unless-stopped
+
+  librenms:
+    image: librenms/librenms:26.9.1.1
+    container_name: librenms
+    hostname: librenms
+    cap_add: [NET_ADMIN, NET_RAW]
+    ports:
+      - "<IP_GESTION>:8000:8000"   # Web UI: publicarla solo en la red de gestión
+    depends_on: [db, redis]
+    volumes:
+      - ./data/data:/data
+    env_file: ["./librenms.env"]
+    environment:
+      <<: *librenms_env
+    mem_limit: 1g
+    restart: unless-stopped
+
+  dispatcher:
+    image: librenms/librenms:26.9.1.1
+    container_name: librenms_dispatcher
+    hostname: librenms-dispatcher
+    cap_add: [NET_ADMIN, NET_RAW]
+    depends_on: [librenms, redis]
+    volumes:
+      - ./data/data:/data
+    env_file: ["./librenms.env"]
+    environment:
+      <<: *librenms_env
+      DISPATCHER_NODE_ID: dispatcher1
+      SIDECAR_DISPATCHER: "1"
+    mem_limit: 512m
+    restart: unless-stopped
+
+  syslogng:
+    image: librenms/librenms:26.9.1.1
+    container_name: librenms_syslogng
+    hostname: librenms-syslogng
+    cap_add: [NET_ADMIN, NET_RAW]
+    depends_on: [librenms, redis]
+    ports:
+      - "<IP_LAN>:514:514/tcp"   # syslog — solo LAN
+      - "<IP_LAN>:514:514/udp"
+    volumes:
+      - ./data/data:/data
+    env_file: ["./librenms.env"]
+    environment:
+      <<: *librenms_env
+      SIDECAR_SYSLOGNG: "1"
+    mem_limit: 256m
+    restart: unless-stopped
+
+  snmptrapd:
+    image: librenms/librenms:26.9.1.1
+    container_name: librenms_snmptrapd
+    hostname: librenms-snmptrapd
+    cap_add: [NET_ADMIN, NET_RAW]
+    depends_on: [librenms, redis]
+    ports:
+      - "<IP_LAN>:162:162/tcp"   # traps — solo LAN
+      - "<IP_LAN>:162:162/udp"
+    volumes:
+      - ./data/data:/data
+    env_file: ["./librenms.env"]
+    environment:
+      <<: *librenms_env
+      SIDECAR_SNMPTRAPD: "1"
+    mem_limit: 256m
+    restart: unless-stopped
+
+# Subred FIJA: cuando el container pollea a su propio host sale con una IP de esta red;
+# el snmpd del host tiene que autorizarla (rocommunity <community> <SUBNET_DOCKER>).
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: <SUBNET_DOCKER>   # una /24 propia que no choque con otras redes

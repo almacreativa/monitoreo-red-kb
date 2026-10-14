@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Bloquea el commit si algo de lo que está en stage tiene datos reales. Activar: git config core.hooksPath .githooks
+mapfile -t staged < <(git diff --cached --name-only --diff-filter=ACMR)
+[ ${#staged[@]} -eq 0 ] && exit 0
+exec "$(git rev-parse --show-toplevel)/scripts/check-anonimato.sh" "${staged[@]}"

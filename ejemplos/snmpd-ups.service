@@ -1,0 +1,16 @@
+[Unit]
+Description=SNMP agent dedicado a la UPS (LibreNMS)
+After=network-online.target nut-server.service docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Archivos persistentes propios: no pisar los del snmpd principal
+Environment=SNMP_PERSISTENT_DIR=/var/lib/snmp-ups
+# -C: NO leer el snmpd.conf por defecto; -c: solo el de la UPS
+ExecStart=/usr/sbin/snmpd -LOw -u Debian-snmp -g Debian-snmp -I -smux,mteTrigger,mteTriggerConf -f -C -c /etc/snmp/snmpd-ups.conf -p /run/snmpd-ups.pid
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
