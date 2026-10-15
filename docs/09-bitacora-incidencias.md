@@ -92,3 +92,38 @@ ITSM (GLPI o iTop): ticket/Problema con responsable, causa raíz, cierre y métr
 - Dependencias desactualizadas silencian alertas reales (falsos negativos). Revisar el diff de
   dependencias periódicamente; no reescribir a ciegas.
 - La causa raíz no se automatiza: requiere campos obligatorios al cerrar y disciplina.
+
+## 5. Validación contra la comunidad (2026-10-15)
+
+Un agente de búsqueda revisó foros de operadores (comunidad LibreNMS, r/networking, r/wisp, LACNOG/GTER).
+Cruzamos cada afirmación con el código de LibreNMS 26.9.1.1 y con la API de GitHub:
+
+| Afirmación del informe | Verificación | Resultado |
+|---|---|---|
+| Grafana OnCall OSS fue deprecado | Repo movido a `grafana-cold-storage/oncall`, **archivado** (2026-03-24) | ✅ Confirmado: descartarlo |
+| Alerta está estancado | Release v9.1.0 (2026-03), 20 commits en el último año, su autor sigue activo | ❌ Refutado: mantenido, aunque con poco ritmo |
+| Keep es el más activo | ≥100 commits en el último año, release v0.54.3 (2026-09); licencia mixta (core abierto + partes enterprise) | ✅ Confirmado; fijar versiones |
+| El transport GLPI crea un ticket por alerta, sin deduplicar | El código **busca un ticket abierto** con el mismo título y agrega seguimiento | ❌ Refutado en parte: deduplica por equipo+regla. **Sí es cierto** que no agrupa equipos distintos ni crea Problemas |
+| Carrera padre/hijo: el hijo alerta antes de que el padre figure caído | `RunAlerts::isParentDown()` mira `devices.status` del padre **en el momento** de notificar: si el padre aún no se marcó caído, la alerta del hijo sale | ✅ Confirmado |
+| Hace falta un adaptador para Alertmanager | LibreNMS trae **transport nativo** `Alertmanager` | ❌ No hace falta adaptador |
+| LibreNMS arma dependencias solo, por LLDP | No las arma: solo UI/API/DB. Nuestro script **propone** y un humano aplica | Aclaración: el riesgo existe si se aplica a ciegas |
+
+### Ajustes que adoptamos
+
+1. **Dependencias en dos niveles por sitio** como base para un ISP: el router del POP es el padre de todo
+   lo del POP. Sale de la nomenclatura (`SITIO-…`), es estable y fácil de mantener. La inferencia
+   (FDB/ARP/LLDP) queda como **auditoría** del árbol, no como fuente única. Cuidado con radioenlaces en
+   bridge que dejan pasar LLDP y "saltan" equipos intermedios.
+2. **Contra la carrera padre/hijo:** usar el *delay* de las reglas de alerta (p. ej. 2–5 min en reglas de
+   equipos de acceso) y fast ping para que el padre se marque caído antes de evaluar a los hijos.
+3. **Payload estructurado** en las plantillas: `location`, grupo, rol, padre. Es la clave de agrupación
+   de la capa 2.
+4. **Capa 2:** Keep (incidentes con UI) o **Alertmanager + Karma** (`group_by: [location]`,
+   `inhibit_rules` core→acceso; muy liviano, transport nativo). Alerta queda como opción liviana válida.
+5. **Capa 3: humano en el circuito.** Ticket en GLPI/iTop **solo para incidentes correlacionados que
+   persisten** más de X minutos; las nuevas alertas del mismo incidente entran como seguimiento; el ticket
+   **no se cierra solo** al recuperarse: queda "pendiente de causa raíz". Así MTTA/MTTR no se falsean.
+6. **iTop** si se quiere modelar impacto en servicios (torre → OLT → clientes) en una CMDB; GLPI si
+   prima la simplicidad y el inventario.
+
+Informe completo y fuentes: cuaderno NotebookLM del proyecto (fuente "validacion-foros").
