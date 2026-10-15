@@ -8,6 +8,26 @@ padre→hijo automática, medición por proveedor y alertas sin ruido.
 > documentación (RFC 5737: `192.0.2.0/24`, `198.51.100.0/24`, `203.0.113.0/24`) y los proveedores se
 > llaman ISP-A / ISP-B. Ver [Cómo contribuir](#cómo-contribuir).
 
+## Qué se puede usar (no solo leer)
+
+Todo está probado contra LibreNMS 26.9.1.1. Ordenado de menor a mayor impacto sobre la instancia:
+
+| Pieza | Qué resuelve | ¿Modifica LibreNMS? | Requisitos | Cómo se usa |
+|---|---|---|---|---|
+| [`tools/diagnostico-librenms.py`](tools/diagnostico-librenms.py) | Foto del estado de la instancia y **por dónde empezar** (colecta, nombres, grupos, dependencias, reglas, ruido, carrera padre/hijo) | **No.** Sesión de base `READ ONLY` | Python 3 + acceso a la base (Docker o cliente `mysql`) | `python3 diagnostico-librenms.py --anonimo --salida diag.md` |
+| [`tools/infer-dependencies.py`](tools/infer-dependencies.py) | Propone el árbol **padre→hijo** con evidencia (FDB/ARP/LLDP) y nivel de confianza | No, salvo `--apply` | Python 3 + base | `--root <id>` muestra propuesta y diff; `--apply` escribe |
+| [`plugins/Bitacora`](plugins/Bitacora) | **Bitácora de incidencias** dentro de LibreNMS: agrupa alertas de varios equipos con un código `INC-…` | Sí: agrega una página y un panel; escribe en el eventlog. Sin tablas nuevas | Copiar la carpeta (o montarla en Docker) | Ver su [README](plugins/Bitacora/README.md). Overview → Bitácora |
+| [`ejemplos/nomenclatura.sql`](ejemplos/nomenclatura.sql) | Nombres `SITIO-ROL-NN`, tipo fijo y ubicación única | Sí (`devices`) | Ajustar los `device_id` | `mariadb … < nomenclatura.sql` (idempotente) |
+| [`ejemplos/sensores-limites.sql`](ejemplos/sensores-limites.sql) | Límites de temperatura del fabricante, no "valor + 20" | Sí (`sensors`) | Ajustar `device_id` y valores | Idem (idempotente) |
+| [`ejemplos/snmpd-ups.conf`](ejemplos/snmpd-ups.conf) + [`.service`](ejemplos/snmpd-ups.service) | UPS por NUT como **equipo propio** en LibreNMS | No (va en el host de la UPS) | NUT funcionando | Ver [04](docs/04-energia-ups-nut.md) |
+| [`ejemplos/docker-compose.yml`](ejemplos/docker-compose.yml) | Stack completo de referencia (web, dispatcher, syslog, traps, DB, Redis) | — | Docker | Ver [01](docs/01-despliegue-docker.md) |
+| [`tools/shot.js`](tools/shot.js) | Captura logueada para verificar dashboards, mapas o el plugin | No | Node + playwright-core | `node shot.js /overview out.png 1600 1000` |
+| [`scripts/check-anonimato.sh`](scripts/check-anonimato.sh) | Impide commitear IPs, MACs o nombres reales | — | — | Automático con `git config core.hooksPath .githooks` |
+
+**Ruta sugerida para una instancia existente:** diagnóstico → nomenclatura y grupos → dependencias
+(propuesta, revisión humana, `--apply`) → límites de sensores → plugin Bitácora.
+Antes de cualquier pieza que escriba: **backup de la base**.
+
 ## Contenido
 
 | Guía | De qué trata |
@@ -23,16 +43,6 @@ padre→hijo automática, medición por proveedor y alertas sin ruido.
 | [09 · Bitácora de incidencias](docs/09-bitacora-incidencias.md) | Agrupar varias alertas en un incidente: qué trae LibreNMS y qué conectarle |
 | [10 · Bitácora liviana y fallas no-conectividad](docs/10-bitacora-liviana-y-fallas-no-conectividad.md) | Cambios de configuración, reinicios, errores, dBm, BGP/OSPF; el eventlog como bitácora; plugin local |
 | [90 · Gotchas](docs/90-gotchas.md) | Problemas reales encontrados: causa → solución |
-
-## Herramientas
-
-| Herramienta | Uso |
-|---|---|
-| [`tools/infer-dependencies.py`](tools/infer-dependencies.py) | Propone dependencias padre→hijo con evidencia y nivel de confianza; `--apply` las escribe |
-| [`tools/diagnostico-librenms.py`](tools/diagnostico-librenms.py) | **Diagnóstico de solo lectura** de una instancia: colecta, nomenclatura, grupos, dependencias, reglas, ruido y carrera padre/hijo, con un resumen "por dónde empezar". `--anonimo` para compartir el reporte |
-| [`plugins/Bitacora`](plugins/Bitacora) | **Plugin local de LibreNMS**: bitácora de incidencias sobre el eventlog (código INC, apertura/nota/cierre, alertas del período). Prototipo probado |
-| [`tools/shot.js`](tools/shot.js) | Captura headless (Playwright) logueada, para verificar dashboards y mapas |
-| [`ejemplos/`](ejemplos/) | Compose, agente SNMP dedicado para UPS, nomenclatura en SQL |
 
 ## Versiones probadas
 
