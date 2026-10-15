@@ -30,6 +30,7 @@ padre→hijo automática, medición por proveedor y alertas sin ruido.
 |---|---|
 | [`tools/infer-dependencies.py`](tools/infer-dependencies.py) | Propone dependencias padre→hijo con evidencia y nivel de confianza; `--apply` las escribe |
 | [`tools/diagnostico-librenms.py`](tools/diagnostico-librenms.py) | **Diagnóstico de solo lectura** de una instancia: colecta, nomenclatura, grupos, dependencias, reglas, ruido y carrera padre/hijo, con un resumen "por dónde empezar". `--anonimo` para compartir el reporte |
+| [`plugins/Bitacora`](plugins/Bitacora) | **Plugin local de LibreNMS**: bitácora de incidencias sobre el eventlog (código INC, apertura/nota/cierre, alertas del período). Prototipo probado |
 | [`tools/shot.js`](tools/shot.js) | Captura headless (Playwright) logueada, para verificar dashboards y mapas |
 | [`ejemplos/`](ejemplos/) | Compose, agente SNMP dedicado para UPS, nomenclatura en SQL |
 
