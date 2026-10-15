@@ -43,9 +43,52 @@ Sirve para empezar **hoy** y crear el hábito. Su límite: depende de la discipl
 | **Grafana OnCall** | Transport nativo | Sí, con guardias y escalamiento | Verificar estado de la versión open source antes de adoptarlo |
 | **Zammad / osTicket** | Webhook / transport nativo (osTicket) | No correlaciona: un ticket por alerta; se agrupa a mano | Mesa de ayuda |
 
-## 4. Recomendación para un equipo chico
+## 4. A escala de ISP (1.000–1.500 equipos)
 
-1. **Primero, menos ruido:** dependencias bien cargadas (una caída de nodo = una alerta) y reglas sin ruido ([07](07-alertas-sin-ruido.md)).
-2. **Hoy:** Opción 0 (código de incidencia en los ack).
-3. **Cuando se quiera bitácora formal:** **GLPI** con el transport nativo, usando **Problemas** para agrupar.
-   Probarlo primero en un laboratorio con alertas reales.
+A esta escala el problema no es "dónde anotar", sino **tormentas de alertas**: una caída de un nodo de
+distribución puede disparar cientos de alertas a la vez. Conectar LibreNMS directo a un sistema de tickets
+sin ordenar antes llena la mesa de tickets basura y el equipo deja de confiar en ella.
+
+### 4.1 Ordenar LibreNMS primero (en este orden)
+
+| # | Qué | Por qué | En esta KB |
+|---|---|---|---|
+| 1 | **Colecta estable:** RRDCached + Dispatcher Service; pollers distribuidos si un ciclo supera 5 min (un poller rinde ~1.000 equipos según latencia) | Si la colecta se atrasa, las alertas llegan tarde o se pierden | — |
+| 2 | **Nombres y ubicaciones normalizados** | Todo lo de abajo se apoya en eso | [05](05-nomenclatura.md) |
+| 3 | **Grupos dinámicos** por rol y por sitio/POP | Equipos nuevos entran solos a su grupo | [05](05-nomenclatura.md) |
+| 4 | **Dependencias padre→hijo** | Una caída de nodo = **una** alerta. Es la base de cualquier correlación | [02](02-topologia-dependencias.md) + `tools/infer-dependencies.py` |
+| 5 | **Reglas por grupo** (no globales) | Umbrales distintos para core y acceso | [07](07-alertas-sin-ruido.md) |
+| 6 | **Plantillas y transports por grupo**, con datos estructurados (equipo, sitio, regla, severidad) | El sistema de incidentes necesita esos campos para agrupar | — |
+| 7 | **Mantenimientos programados** como hábito | No ensuciar métricas ni bitácora con trabajos planificados | — |
+
+### 4.2 Arquitectura en tres capas
+
+```
+LibreNMS (colecta + supresión por dependencias)
+   │ webhook / transport
+   ▼
+Correlación (Keep o Alerta): agrupa ráfagas por sitio/servicio/ventana de tiempo → 1 evento
+   │
+   ▼
+ITSM (GLPI o iTop): ticket/Problema con responsable, causa raíz, cierre y métricas (MTTR, SLA)
+```
+
+| Capa | Opciones | Nota |
+|---|---|---|
+| Correlación | **Keep** (reglas o IA, incidentes), **Alerta** (deduplicación, liviano) | Verificar estado y actividad del proyecto antes de adoptar |
+| ITSM / bitácora | **GLPI** (transport nativo; Problemas para agrupar; reportes de SLA), **iTop** (fuerte en CMDB e impacto en servicios, más esfuerzo de mantener), Znuny/OTRS | GLPI no correlaciona solo: deduplica por equipo+regla; la agrupación en Problema es humana |
+| Guardias y escalamiento | Opsgenie / JSM (pago, SaaS), Grafana OnCall | Solo si hay guardias 24/7 formales |
+
+### 4.3 Fases sugeridas
+
+1. **Diagnóstico** de la instancia actual (solo lectura): reglas, grupos, transports, cobertura de
+   dependencias, tiempos de polling, top de alertas ruidosas.
+2. **Saneamiento** (4.1). Se mide el antes y el después en cantidad de alertas por evento.
+3. **Bitácora mínima:** convención de código de incidencia (sección 2) mientras tanto.
+4. **Piloto de correlación + ITSM** con un subconjunto (un POP), luego extender.
+5. **Métricas:** MTTA, MTTR, SLA, causas más frecuentes.
+
+**Riesgos:**
+- Dependencias desactualizadas silencian alertas reales (falsos negativos). Revisar el diff de
+  dependencias periódicamente; no reescribir a ciegas.
+- La causa raíz no se automatiza: requiere campos obligatorios al cerrar y disciplina.
