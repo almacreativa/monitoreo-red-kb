@@ -20,6 +20,7 @@ padre→hijo automática, medición por proveedor y alertas sin ruido.
 | [06 · Dashboards y mapas](docs/06-dashboards-mapas.md) | Dashboard y Custom Map reproducibles (SQL / Eloquent) |
 | [07 · Alertas sin ruido](docs/07-alertas-sin-ruido.md) | Reglas, dependencias, interfaces virtuales, límites de sensores |
 | [08 · Monitorear fuera de la red](docs/08-monitoreo-fuera-de-la-red.md) | VPS, servicios web y "quién vigila al vigilante" |
+| [09 · Bitácora de incidencias](docs/09-bitacora-incidencias.md) | Agrupar varias alertas en un incidente: qué trae LibreNMS y qué conectarle |
 | [90 · Gotchas](docs/90-gotchas.md) | Problemas reales encontrados: causa → solución |
 
 ## Herramientas
