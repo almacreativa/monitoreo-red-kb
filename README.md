@@ -21,6 +21,7 @@ padre→hijo automática, medición por proveedor y alertas sin ruido.
 | [07 · Alertas sin ruido](docs/07-alertas-sin-ruido.md) | Reglas, dependencias, interfaces virtuales, límites de sensores |
 | [08 · Monitorear fuera de la red](docs/08-monitoreo-fuera-de-la-red.md) | VPS, servicios web y "quién vigila al vigilante" |
 | [09 · Bitácora de incidencias](docs/09-bitacora-incidencias.md) | Agrupar varias alertas en un incidente: qué trae LibreNMS y qué conectarle |
+| [10 · Bitácora liviana y fallas no-conectividad](docs/10-bitacora-liviana-y-fallas-no-conectividad.md) | Cambios de configuración, reinicios, errores, dBm, BGP/OSPF; el eventlog como bitácora; plugin local |
 | [90 · Gotchas](docs/90-gotchas.md) | Problemas reales encontrados: causa → solución |
 
 ## Herramientas
