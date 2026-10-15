@@ -31,3 +31,5 @@
 | 27 | Equipos en naranja sin alertas | `uptime_warning`: reiniciados hace < 24 h | Normal, se limpia solo |
 | 28 | Un speedtest no dice cuál WAN es cuál | Con balanceo, cada conexión sale por una WAN distinta | Forzar la ruta o medir desde el router por interfaz |
 | 29 | LibreNMS no arma el árbol padre→hijo | No existe inferencia nativa (solo UI/API/DB) | [`tools/infer-dependencies.py`](../tools/infer-dependencies.py) |
+| 30 | Al pasar un equipo de ping a SNMP, el discovery le cambia el **tipo** | Core reescribe `devices.type` con el default del OS si no existe `override_device_type` | Atributo `override_device_type=1` en `devices_attribs` (ver [`ejemplos/nomenclatura.sql`](../ejemplos/nomenclatura.sql)) |
+| 31 | Windows por SNMP: muchos puertos "down" | Adaptadores virtuales (WAN Miniport, filtros Wi-Fi) | `ports.ignore = 1` en esos puertos |

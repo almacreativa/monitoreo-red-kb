@@ -21,4 +21,10 @@ UPDATE devices d JOIN (
 ) m ON m.id = d.device_id
 SET d.display = m.n, d.type = m.t, d.location_id = @loc, d.override_sysLocation = 1;
 
+-- Fijar el tipo: sin este atributo, cada discovery lo pisa con el default del OS (como hace la UI al editarlo).
+INSERT INTO devices_attribs (device_id, attrib_type, attrib_value)
+  SELECT d.device_id, 'override_device_type', '1' FROM devices d
+  WHERE d.display LIKE 'LAB-%'
+    AND NOT EXISTS (SELECT 1 FROM devices_attribs a WHERE a.device_id = d.device_id AND a.attrib_type = 'override_device_type');
+
 SELECT device_id, display, type FROM devices ORDER BY display;
