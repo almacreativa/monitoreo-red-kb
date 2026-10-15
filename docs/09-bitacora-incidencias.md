@@ -81,7 +81,7 @@ ITSM (GLPI o iTop): ticket/Problema con responsable, causa raíz, cierre y métr
 
 ### 4.3 Fases sugeridas
 
-1. **Diagnóstico** de la instancia actual (solo lectura): reglas, grupos, transports, cobertura de
+1. **Diagnóstico** de la instancia actual con [`tools/diagnostico-librenms.py`](../tools/diagnostico-librenms.py) (solo lectura): reglas, grupos, transports, cobertura de
    dependencias, tiempos de polling, top de alertas ruidosas.
 2. **Saneamiento** (4.1). Se mide el antes y el después en cantidad de alertas por evento.
 3. **Bitácora mínima:** convención de código de incidencia (sección 2) mientras tanto.

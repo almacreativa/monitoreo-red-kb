@@ -28,6 +28,7 @@ padre→hijo automática, medición por proveedor y alertas sin ruido.
 | Herramienta | Uso |
 |---|---|
 | [`tools/infer-dependencies.py`](tools/infer-dependencies.py) | Propone dependencias padre→hijo con evidencia y nivel de confianza; `--apply` las escribe |
+| [`tools/diagnostico-librenms.py`](tools/diagnostico-librenms.py) | **Diagnóstico de solo lectura** de una instancia: colecta, nomenclatura, grupos, dependencias, reglas, ruido y carrera padre/hijo, con un resumen "por dónde empezar". `--anonimo` para compartir el reporte |
 | [`tools/shot.js`](tools/shot.js) | Captura headless (Playwright) logueada, para verificar dashboards y mapas |
 | [`ejemplos/`](ejemplos/) | Compose, agente SNMP dedicado para UPS, nomenclatura en SQL |
 

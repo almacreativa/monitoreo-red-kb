@@ -33,3 +33,4 @@
 | 29 | LibreNMS no arma el árbol padre→hijo | No existe inferencia nativa (solo UI/API/DB) | [`tools/infer-dependencies.py`](../tools/infer-dependencies.py) |
 | 30 | Al pasar un equipo de ping a SNMP, el discovery le cambia el **tipo** | Core reescribe `devices.type` con el default del OS si no existe `override_device_type` | Atributo `override_device_type=1` en `devices_attribs` (ver [`ejemplos/nomenclatura.sql`](../ejemplos/nomenclatura.sql)) |
 | 31 | Windows por SNMP: muchos puertos "down" | Adaptadores virtuales (WAN Miniport, filtros Wi-Fi) | `ports.ignore = 1` en esos puertos |
+| 32 | Un servidor vuelve de un reinicio y LibreNMS lo marca caído por SNMP (el ping responde) | Se activó un firewall (UFW) sin regla para SNMP: `[UFW BLOCK] … DPT=161` en el log | Regla puntual: `ufw allow proto udp from <poller> to any port 161`. Toda línea base de firewall debe incluir el SNMP del poller |
