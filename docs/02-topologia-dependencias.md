@@ -65,6 +65,7 @@ había armado a mano.
 # desde la carpeta del stack (donde está el .env con MYSQL_USER/MYSQL_PASSWORD)
 python3 -I infer-dependencies.py --root 1                          # propuesta + diff, NO escribe
 python3 -I infer-dependencies.py --root 1 --switch 4               # el 4 es un switch sin SNMP
+python3 -I infer-dependencies.py --root 1 --switch 11@ether4       # idem, anclado al puerto de la raíz
 python3 -I infer-dependencies.py --root 1 --switch 4 --ip 6=192.0.2.15   # el 6 se pollea por otra IP
 python3 -I infer-dependencies.py --root 1 --switch 4 --apply       # escribe device_relationships
 ```
@@ -95,6 +96,7 @@ Configuración: `LNMS_ENV_FILE`, `LNMS_DB_CONTAINER` (default `librenms_db`), `L
 | Correr la inferencia **con tráfico real** | Las MACs envejecen (unos 300 s): un equipo callado no aparece en la FDB |
 | **Una raíz por POP o anillo**, considerando STP | Con redundancia el "uplink" cambia según el camino activo |
 | Radioenlaces y bridges transparentes | No aparecen en la FDB: declararlos (`--switch`) o leer su propio SNMP |
+| AP en bridge que casi no genera tráfico propio | Está en ARP pero no en la FDB: `--switch` no lo ancla y sus clientes Wi-Fi quedan colgando del router. Declarar el puerto: `--switch <id>@<ifName>` |
 | Clientes PPPoE/DHCP | El padre del CPE sale de la sesión en el BRAS/OLT, no de la FDB |
 | **Revisión humana** del diff antes de `--apply` | La inferencia propone y el operador confirma |
 

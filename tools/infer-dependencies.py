@@ -21,6 +21,9 @@ Uso:
   infer-dependencies.py --root 1                  # muestra propuesta y diff (no escribe)
   infer-dependencies.py --root 1 --apply          # reemplaza device_relationships
   infer-dependencies.py --root 1 --switch 4       # declara el 4 como switch (sin SNMP)
+  infer-dependencies.py --root 1 --switch 11@ether4  # idem, anclado a un puerto de la raíz
+                                                  # (para equipos que casi no generan tráfico
+                                                  #  y no aparecen en la FDB: APs en bridge)
   infer-dependencies.py --root 1 --ip 6=192.0.2.15     # el 6 se pollea por otra IP (p.ej. VPN)
 
 Conexión a la base (LibreNMS en docker):
@@ -71,12 +74,20 @@ def norm(mac):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", type=int, required=True, help="device_id de la raíz (router/core)")
-    ap.add_argument("--switch", type=int, action="append", default=[],
-                    help="device_id de un switch sin SNMP (repetible)")
+    ap.add_argument("--switch", action="append", default=[],
+                    help="device_id de un switch sin SNMP, opcional @ifName del puerto de la raíz donde cuelga (repetible)")
     ap.add_argument("--ip", action="append", default=[], metavar="ID=IP",
                     help="IP extra de un equipo (p.ej. su IP LAN si se pollea por otra), repetible")
     ap.add_argument("--apply", action="store_true", help="escribe device_relationships")
     a = ap.parse_args()
+    anchors = {}  # switch sin SNMP -> ifName del puerto de la raíz donde cuelga
+    sws = []
+    for v in a.switch:
+        sid, _, port = v.partition("@")
+        sws.append(int(sid))
+        if port:
+            anchors[int(sid)] = port
+    a.switch = sws
 
     dev = {int(i): {"name": d or h, "host": h, "ip": ip or h, "snmp": s == "0"}
            for i, h, d, ip, s in q("select device_id, hostname, ifnull(display,''), "
@@ -138,6 +149,11 @@ def main():
 
     # 3) Switch sin SNMP: si comparte puerto de bajada con otros hosts, éstos cuelgan de él
     for sw in a.switch:
+        if sw not in best and sw in anchors:
+            # Sin FDB propia (no generó tráfico al pollear): se usa el puerto declarado de la raíz
+            pid = next((i for i, n in pname.items() if n == anchors[sw] and i in fdb[a.root]), None)
+            if pid is not None:
+                best[sw] = (len(fdb[a.root][pid]), a.root, pid)
         if sw not in best:
             continue
         _, s, p = best[sw]
