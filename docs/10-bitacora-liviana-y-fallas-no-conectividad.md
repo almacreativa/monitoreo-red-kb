@@ -42,7 +42,7 @@ Un mismo código cargado en **varios equipos** es "un incidente que agrupa varia
 | Nivel | Qué | Esfuerzo |
 |---|---|---|
 | 0 | Script o formulario mínimo (o un flujo n8n) que llama a la API para registrar `INC-…` en N equipos | Horas |
-| 1 | **Plugin local** de LibreNMS ([prototipo funcionando: `plugins/Bitacora`](../plugins/Bitacora)) (`app/Plugins`, hooks `MenuEntry` + `Page` + `DeviceOverview`): página "Bitácora" que agrupa el eventlog por `reference`, muestra las alertas de esos equipos en la ventana del incidente y un formulario de alta/cierre | 1–2 días de desarrollo PHP/Laravel. Sin tablas propias (usa el eventlog) |
+| 1 | **Plugin local** de LibreNMS ([beta 0.1 funcionando: `plugins/Bitacora`](../plugins/Bitacora)) (`app/Plugins`, hooks `MenuEntry` + `Page` + `DeviceOverview`): página "Bitácora" que agrupa el eventlog por `reference`, muestra las alertas de esos equipos en la ventana del incidente y un formulario de alta/cierre | 1–2 días de desarrollo PHP/Laravel. Sin tablas propias (usa el eventlog) |
 | 2 | ITSM / correlación ([09](09-bitacora-incidencias.md) §4) | Semanas |
 
 **Límites de los transports "livianos" probados:**

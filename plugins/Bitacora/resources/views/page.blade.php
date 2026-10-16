@@ -45,6 +45,10 @@
                         </table>
 
                         <strong>Alertas de esos equipos durante el incidente ({{ count($i['alerts']) }})</strong>
+                        <div class="text-muted small" style="margin-bottom:4px">
+                            Asociadas automáticamente: alertas de los equipos del incidente desde 30 min antes de la apertura
+                            hasta 10 min después del cierre. Para sumar las de otro equipo, agregalo con una nota.
+                        </div>
                         @if(count($i['alerts']))
                             <table class="table table-condensed table-striped">
                                 @foreach($i['alerts'] as $a)
@@ -61,7 +65,9 @@
                         @endif
 
                         @if($canWrite)
-                            <a class="btn btn-xs btn-default" href="{{ url('plugin/Bitacora') }}?estado={{ $filter }}&code={{ $i['code'] }}#{{ $i['code'] }}">Agregar nota o cerrar</a>
+                            <a class="btn btn-primary" href="{{ url('plugin/Bitacora') }}?estado={{ $filter }}&code={{ $i['code'] }}#{{ $i['code'] }}">
+                                <i class="fa fa-pencil fa-fw"></i> {{ $i['status'] === 'abierto' ? 'Agregar nota o cerrar' : 'Agregar nota o reabrir' }}
+                            </a>
                         @endif
                     </div>
                 </div>
@@ -148,7 +154,7 @@
                 <div class="panel-body text-muted small">
                     Cada registro se guarda en el <a href="{{ url('eventlog') }}">eventlog</a> de los equipos elegidos
                     (tipo <code>incidencia</code>, referencia = código). Un mismo código en varios equipos agrupa sus alertas
-                    en un solo incidente. Prototipo — repo KB, docs/10.
+                    en un solo incidente; sus alertas se asocian solas por equipo y período. Bitácora 0.1 (beta) — repo KB, docs/10.
                 </div>
             </div>
         </div>
