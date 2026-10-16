@@ -126,4 +126,12 @@ Cruzamos cada afirmación con el código de LibreNMS 26.9.1.1 y con la API de Gi
 6. **iTop** si se quiere modelar impacto en servicios (torre → OLT → clientes) en una CMDB; GLPI si
    prima la simplicidad y el inventario.
 
-Informe completo y fuentes: cuaderno NotebookLM del proyecto (fuente "validacion-foros").
+### Fuentes públicas
+
+La validación salió del código de LibreNMS 26.9.1.1 y de repositorios y documentación públicos:
+
+- LibreNMS: [`librenms/librenms`](https://github.com/librenms/librenms) (reglas en `app/LibreNMS/Alert/RunAlerts.php`, transports) y [docs.librenms.org](https://docs.librenms.org) (alerting, transports, mantenimiento programado).
+- Grafana OnCall OSS: [`grafana-cold-storage/oncall`](https://github.com/grafana-cold-storage/oncall) — archivado en 2026-03.
+- Alerta: [`alerta/alerta`](https://github.com/alerta/alerta).
+- Keep: [`keephq/keep`](https://github.com/keephq/keep).
+- GLPI: [`glpi-project/glpi`](https://github.com/glpi-project/glpi) y su transport de LibreNMS.
