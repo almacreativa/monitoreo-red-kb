@@ -72,7 +72,7 @@ class Incidents
             return "Código inválido «{$code}» (formato INC-AAAA-NNN)";
         }
 
-        $ids = collect($p['devices'] ?? [])->filter(fn ($v) => ctype_digit((string) $v))->map('intval');
+        $ids = collect($p['devices'] ?? [])->filter(fn ($v) => ctype_digit((string) $v))->map(fn ($v) => (int) $v);
         if (! empty($p['group']) && ctype_digit((string) $p['group'])) {
             $ids = $ids->merge(DeviceGroup::find((int) $p['group'])?->devices()->pluck('devices.device_id') ?? []);
         }

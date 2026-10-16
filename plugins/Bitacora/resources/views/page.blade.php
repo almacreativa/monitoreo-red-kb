@@ -90,16 +90,13 @@
                             </div>
                             <div class="form-group">
                                 <label>Equipos</label>
-                                <select name="settings[pending][0][devices][]" class="form-control" multiple size="8">
-                                    @foreach($devices as $d)
-                                        <option value="{{ $d->device_id }}">{{ $d->displayName() }}</option>
-                                    @endforeach
-                                </select>
-                                <small class="text-muted">Ctrl/Cmd para varios. En notas y cierres, vacío = los del incidente.</small>
+                                <select name="settings[pending][0][devices][]" id="bit-devices" class="form-control" multiple style="width:100%"></select>
+                                <small class="text-muted">Escribí parte del nombre, código, IP o sitio; podés elegir varios.
+                                    En notas y cierres, vacío = los del incidente.</small>
                             </div>
                             <div class="form-group">
                                 <label>… o todo un grupo</label>
-                                <select name="settings[pending][0][group]" class="form-control">
+                                <select name="settings[pending][0][group]" id="bit-group" class="form-control" style="width:100%">
                                     <option value="">—</option>
                                     @foreach($groups as $g)
                                         <option value="{{ $g->id }}">{{ $g->name }}</option>
@@ -140,3 +137,27 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(function () {
+        // Equipos: índice local filtrado en el navegador (palabras en AND), paginado de a 30
+        var equipos = @json($deviceIndex);
+        $('#bit-devices').select2({
+            theme: 'bootstrap', width: '100%', multiple: true, closeOnSelect: false,
+            placeholder: 'Buscar equipos (' + equipos.length + ')…',
+            ajax: {
+                delay: 150,
+                transport: function (params, success) {
+                    var words = (params.data.term || '').toLowerCase().split(/\s+/).filter(Boolean);
+                    var hits = equipos.filter(function (e) {
+                        return words.every(function (w) { return e.s.indexOf(w) !== -1; });
+                    });
+                    var page = params.data.page || 1, per = 30;
+                    success({results: hits.slice((page - 1) * per, page * per), pagination: {more: hits.length > page * per}});
+                    return {abort: function () {}};
+                }
+            }
+        });
+        $('#bit-group').select2({theme: 'bootstrap', width: '100%', placeholder: '—', allowClear: true});
+    });
+</script>

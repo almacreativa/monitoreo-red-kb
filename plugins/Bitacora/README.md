@@ -10,6 +10,7 @@ Bitácora de incidencias **dentro de LibreNMS**, sin tablas propias ni plataform
   - Panel en la ficha de cada equipo.
   - Las entradas también aparecen en *Recent Events* y en el eventlog.
 - **Registro:** el formulario permite apertura, nota y cierre con causa tipificada. Se pueden elegir equipos o un grupo completo, y una fecha opcional para registrar a posteriori.
+- **Buscador de equipos** (Select2, el mismo componente de LibreNMS): busca por nombre visible (nomenclatura), hostname, sysName, IP y **ubicación/sitio**; varias palabras se combinan (`pop1 olt`); resultados de a 30. El índice respeta los permisos del usuario y se filtra en el navegador (1.500 equipos ≈ 100 KB).
 - **Seguridad:** escribe por la ruta oficial `plugin.update` (CSRF + permiso `plugin.admin`). Lectura con `global-read`. Sin migraciones.
 
 ## Instalación (Docker)
@@ -27,10 +28,14 @@ Instalación nativa: copiar la carpeta a `/opt/librenms/app/Plugins/Bitacora`.
 - La página de plugin solo acepta GET: para escribir se usa la ruta de *settings* del plugin y la página vuelca
   `settings['pending']` al eventlog en el redirect.
 - PHP-FPM con `opcache.revalidate_freq=60`: después de editar el PHP, esperar ~1 min (o reiniciar) antes de probar.
+- **Un hook no puede devolver JSON lanzando una excepción** (p. ej. `HttpResponseException`): el
+  `PluginManager` atrapa toda excepción de un hook y **desactiva el plugin**. Reactivar con `lnms plugin:enable Bitacora`.
+- `collect()->map('intval')` es un bug: Laravel pasa la clave como segundo argumento y `intval("5", 1)` (base 1)
+  devuelve 0. Usar `map(fn ($v) => (int) $v)`.
+- LibreNMS pone `<base href="/">`: los links relativos (`?estado=…`) van a la raíz. Usar `url('plugin/Bitacora')`.
 - Un incidente está cerrado si su último CIERRE es posterior a su última APERTURA: las notas posteriores
   (post-mortem) no lo reabren.
 
 ## Límites del prototipo
-- Selector de equipos plano (con 1.500 equipos conviene buscador o filtrar por grupo/sitio).
 - Sin reportes de MTTR/causas todavía (los datos están: duración y causa tipificada por incidente).
 - Solo administradores registran (`plugin.admin`).
