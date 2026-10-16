@@ -8,7 +8,7 @@
         <div class="col-md-8">
             <div class="btn-group" role="group" style="margin-bottom:12px">
                 @foreach(['abierto' => 'Abiertos', 'cerrado' => 'Cerrados', 'todos' => 'Todos'] as $k => $label)
-                    <a class="btn btn-default {{ $filter === $k ? 'active' : '' }}" href="?estado={{ $k }}">
+                    <a class="btn btn-default {{ $filter === $k ? 'active' : '' }}" href="{{ url('plugin/Bitacora') }}?estado={{ $k }}">
                         {{ $label }} @if($k !== 'todos')<span class="badge">{{ $counts[$k] ?? 0 }}</span>@endif
                     </a>
                 @endforeach
@@ -60,7 +60,7 @@
                         @endif
 
                         @if($canWrite)
-                            <a class="btn btn-xs btn-default" href="?estado={{ $filter }}&code={{ $i['code'] }}#form">Agregar nota o cerrar</a>
+                            <a class="btn btn-xs btn-default" href="{{ url('plugin/Bitacora') }}?estado={{ $filter }}&code={{ $i['code'] }}#form">Agregar nota o cerrar</a>
                         @endif
                     </div>
                 </div>
