@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Alma Creativa
 # Control de anonimato: falla si algún archivo contiene datos reales de una red.
 # 1) Reglas genéricas (en el repo): IPs privadas/CGNAT/Tailscale y MACs que NO sean de documentación.
 #    Permitido en ejemplos: 192.0.2.0/24, 198.51.100.0/24, 203.0.113.0/24 (RFC 5737), 2001:db8::/32,

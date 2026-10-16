@@ -49,6 +49,18 @@ Antes de cualquier pieza que escriba: **backup de la base**.
 LibreNMS **26.9.1.1** (imagen `librenms/librenms`), MariaDB 10.11, Redis 7.4, net-snmp 5.9, NUT 2.8,
 RouterOS 7.20 (MikroTik).
 
+## Licencias
+
+| Contenido | Licencia | Texto completo |
+|---|---|---|
+| `docs/` — guías y documentación | **CC BY 4.0** | [`LICENSES/CC-BY-4.0.txt`](LICENSES/CC-BY-4.0.txt) |
+| `tools/`, `scripts/`, `ejemplos/`, `.githooks/` — código y ejemplos | **MIT** | [`LICENSE`](LICENSE) |
+| `plugins/Bitacora/` — plugin para LibreNMS | **GPL-3.0-or-later** | [`plugins/Bitacora/LICENSE`](plugins/Bitacora/LICENSE) |
+
+© 2026 Alma Creativa. El plugin corre dentro de LibreNMS (GPL-3.0), de ahí su licencia; cada archivo de
+código lleva su encabezado `SPDX-License-Identifier`. Las contribuciones se aceptan bajo la licencia
+del directorio que tocan.
+
 ## Cómo contribuir
 
 1. Activar el control de anonimato **una vez por clon**:

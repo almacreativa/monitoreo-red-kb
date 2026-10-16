@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Alma Creativa
 """Diagnóstico de una instancia de LibreNMS — SOLO LECTURA.
 
 Responde, en una página, "¿qué tan ordenada está nuestra instancia y por dónde empezar?":

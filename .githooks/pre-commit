@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Alma Creativa
 # Bloquea el commit si algo de lo que está en stage tiene datos reales. Activar: git config core.hooksPath .githooks
 mapfile -t staged < <(git diff --cached --name-only --diff-filter=ACMR)
 [ ${#staged[@]} -eq 0 ] && exit 0

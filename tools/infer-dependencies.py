@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 Alma Creativa
 """Infiere dependencias padre→hijo entre dispositivos de LibreNMS a partir de L2/L3.
 
 Fuentes (todas ya recolectadas por LibreNMS):

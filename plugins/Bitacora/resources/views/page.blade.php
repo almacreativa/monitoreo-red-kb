@@ -1,3 +1,4 @@
+{{-- SPDX-License-Identifier: GPL-3.0-or-later · Copyright (c) 2026 Alma Creativa --}}
 <div class="container-fluid">
     @foreach($messages as $m)
         <div class="alert alert-warning">{{ $m }}</div>

@@ -1,5 +1,8 @@
 <?php
 
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2026 Alma Creativa
+
 /*
  * Bitácora de incidencias para LibreNMS (plugin local, prototipo).
  *

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Alma Creativa
 // Captura headless de una página de LibreNMS, logueado (verificación visual de dashboards/mapas).
 // URL: LNMS_URL (default http://localhost:8000)
 // Uso: PWCORE=<ruta a playwright-core> LU=<usuario> LP=<password> node shot.js <path> <out.png> [ancho] [alto]

@@ -1,5 +1,8 @@
 <?php
 
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Copyright (c) 2026 Alma Creativa
+
 namespace App\Plugins\Bitacora;
 
 use App\Plugins\Bitacora\Support\Incidents;
