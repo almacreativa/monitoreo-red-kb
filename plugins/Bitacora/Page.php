@@ -36,6 +36,7 @@ class Page extends PageHook
             'causes' => Incidents::CAUSES,
             'groups' => DeviceGroup::orderBy('name')->get(['id', 'name']),
             'preset' => request('code'),
+            'presetIncident' => request('code') ? $incidents->firstWhere('code', request('code')) : null,
             'deviceIndex' => auth()->user()->can('plugin.admin') ? self::deviceIndex() : [],
         ];
     }

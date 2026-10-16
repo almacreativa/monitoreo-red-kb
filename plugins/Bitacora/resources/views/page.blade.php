@@ -15,7 +15,8 @@
             </div>
 
             @forelse($incidents as $i)
-                <div class="panel panel-{{ $i['status'] === 'abierto' ? 'danger' : 'success' }}" id="{{ $i['code'] }}">
+                <div class="panel panel-{{ $i['status'] === 'abierto' ? 'danger' : 'success' }}" id="{{ $i['code'] }}"
+                     style="scroll-margin-top:70px;@if($preset === $i['code']) box-shadow:0 0 0 3px #337ab7 @endif">
                     <div class="panel-heading">
                         <strong>{{ $i['code'] }}</strong> · {{ $i['title'] }}
                         <span class="pull-right">
@@ -60,7 +61,7 @@
                         @endif
 
                         @if($canWrite)
-                            <a class="btn btn-xs btn-default" href="{{ url('plugin/Bitacora') }}?estado={{ $filter }}&code={{ $i['code'] }}#form">Agregar nota o cerrar</a>
+                            <a class="btn btn-xs btn-default" href="{{ url('plugin/Bitacora') }}?estado={{ $filter }}&code={{ $i['code'] }}#{{ $i['code'] }}">Agregar nota o cerrar</a>
                         @endif
                     </div>
                 </div>
@@ -69,24 +70,40 @@
             @endforelse
         </div>
 
-        <div class="col-md-4" id="form">
+        <div class="col-md-4" id="bit-form" style="position:sticky;top:60px">
             @if($canWrite)
-                <div class="panel panel-default">
-                    <div class="panel-heading"><strong>Registrar</strong></div>
+                <div class="panel {{ $presetIncident ? 'panel-primary' : 'panel-default' }}">
+                    <div class="panel-heading">
+                        @if($presetIncident)
+                            <strong>Agregar a {{ $presetIncident['code'] }}</strong> ({{ $presetIncident['status'] }})
+                            <a href="{{ url('plugin/Bitacora') }}?estado={{ $filter }}" class="pull-right" style="color:#fff">Cancelar ✕</a>
+                            <div class="small" style="margin-top:4px">{{ \Illuminate\Support\Str::limit($presetIncident['title'], 110) }}</div>
+                        @else
+                            <strong>Registrar nuevo incidente o entrada</strong>
+                        @endif
+                    </div>
                     <div class="panel-body">
                         <form method="post" action="{{ route('plugin.update', 'Bitacora') }}">
                             @csrf
                             <div class="form-group">
                                 <label>Acción</label>
                                 <select name="settings[pending][0][action]" class="form-control" id="bit-action">
-                                    @foreach($actions as $k => $label)
-                                        <option value="{{ $k }}" @if($preset && $k === 'nota') selected @endif>{{ ucfirst(strtolower($label)) }}</option>
-                                    @endforeach
+                                    @if(! $presetIncident)
+                                        @foreach($actions as $k => $label)
+                                            <option value="{{ $k }}">{{ ucfirst(strtolower($label)) }}</option>
+                                        @endforeach
+                                    @elseif($presetIncident['status'] === 'cerrado')
+                                        <option value="nota" selected>Nota (post-mortem, no lo reabre)</option>
+                                        <option value="apertura">Reabrir el incidente</option>
+                                    @else
+                                        <option value="nota" selected>Nota</option>
+                                        <option value="cierre">Cerrar el incidente</option>
+                                    @endif
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Código</label>
-                                <input name="settings[pending][0][code]" class="form-control" value="{{ $preset }}" placeholder="{{ $nextCode }} (vacío = nuevo)">
+                                <input name="settings[pending][0][code]" class="form-control" value="{{ $preset }}" placeholder="{{ $nextCode }} (vacío = nuevo)" @if($presetIncident) readonly @endif>
                             </div>
                             <div class="form-group">
                                 <label>Equipos</label>
@@ -158,6 +175,9 @@
                 }
             }
         });
+        // "Causa" solo tiene sentido al cerrar
+        var toggleCause = function () { $('#bit-cause').toggle($('#bit-action').val() === 'cierre'); };
+        $('#bit-action').on('change', toggleCause); toggleCause();
         $('#bit-group').select2({theme: 'bootstrap', width: '100%', placeholder: '—', allowClear: true});
     });
 </script>
